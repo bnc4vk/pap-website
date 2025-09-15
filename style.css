@@ -1,0 +1,230 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f5f5f5;
+}
+
+/* Tiles */
+.tiles-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.tile {
+    display: flex;
+    align-items: center;        /* vertical center */
+    justify-content: center;    /* horizontal center */
+    text-align: center;         /* multi-line center */
+    padding: 8px 12px;
+    box-sizing: border-box;
+
+    min-width: 160px;           /* prevents shrinking too much */
+    height: auto;               /* allow height to grow with content */
+    min-height: 50px;           /* baseline tile size */
+    
+    line-height: 1.2;
+    word-break: break-word;     /* break very long words if needed */
+    overflow: hidden;           /* ensures clean edges */
+}
+
+.tile:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Neutral darker tile gradients */
+.tile-1 {
+    background: linear-gradient(135deg, #495057 0%, #343a40 100%); /* slate grey → charcoal */
+}
+
+.tile-2 {
+    background: linear-gradient(135deg, #5c677d 0%, #3a506b 100%); /* muted blue-grey */
+}
+
+.tile-3 {
+    background: linear-gradient(135deg, #6c584c 0%, #4e342e 100%); /* earthy brown-grey */
+}
+
+.tile-4 {
+    background: linear-gradient(135deg, #495867 0%, #2f3e46 100%); /* dark teal-grey */
+}
+
+.search-tile {
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid #e0e0e0;
+    backdrop-filter: blur(10px);
+}
+
+.search-icon {
+    width: 24px;
+    height: 24px;
+    stroke: #666;
+    stroke-width: 2;
+}
+
+/* Map */
+.map-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0;
+    background-color: #f5f5f5;
+}
+
+.map-aspect {
+    width: 60%;
+    position: relative;
+    padding-top: 34%;
+    max-width: 1200px;
+}
+
+#map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 12px;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
+}
+
+.legend {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    margin: 20px auto 0 auto;
+    padding: 12px 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #333;
+}
+
+.legend-color {
+    width: 18px;
+    height: 18px;
+    border: 1px solid #999;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.legend-item span {
+    color: #333; /* default light mode text */
+}
+
+body.dark-mode .legend-item span {
+    color: #eee; /* light text in dark mode */
+}
+
+.color-box {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #999;
+    display: inline-block;
+}
+
+/* Header */
+.page-header {
+    text-align: center;
+    padding: 20px 10px;
+    background-color: #ffffff;
+    font-family: 'Arial', sans-serif;
+}
+
+.page-header h1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.header-divider {
+    border: none;
+    border-top: 2px solid #ddd;
+    margin: 0 20px 20px 20px;
+}
+
+/* Colors */
+.dark-grey { background-color: #666666; }
+.red { background-color: #e74c3c; }
+.yellow { background-color: #f1c40f; }
+.green { background-color: #27ae60; }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .tiles-container {
+        gap: 10px;
+        padding: 15px;
+    }
+
+    .tile {
+        width: 140px;
+        height: 45px;
+    }
+
+    .search-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .map-aspect {
+        width: 75%;
+        padding-top: 75% * 0.7;
+    }
+
+    .legend {
+        gap: 20px;
+        padding: 15px;
+        font-size: 12px;
+        flex-wrap: wrap;
+    }
+
+    .color-box {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+/* Tile active states */
+.tile.active {
+    outline: 3px solid #000;
+    outline-offset: 3px;
+}
+
+body.dark-mode .tile.active {
+    outline: 3px solid #fff;
+}
+
+/* Dark mode overrides */
+body.dark-mode {
+    background-color: #121212;
+    color: #eee;
+}
+
+body.dark-mode .page-header { background-color: #121212; }
+body.dark-mode .page-header h1 { color: #eee; }
+body.dark-mode .header-divider { border-top: 2px solid #444; }
+body.dark-mode .tiles-container { background-color: #121212; }
+body.dark-mode .map-wrapper { background-color: #121212; }
+body.dark-mode .legend {
+    background-color: #1e1e1e;
+    color: #eee;
+    border-top: 1px solid #444;
+}
