@@ -1,5 +1,9 @@
 // --- Mapbox Setup ---
-mapboxgl.accessToken = 'pk.eyJ1IjoiYm5jNHZrIiwiYSI6ImNtZmtiZXJ3eDE0Y28ybG9sOGV0aHhvb3oifQ.fbMSAQNhMyz_mMaBiSVFgw';
+const isLocalhost = window.location.hostname === "localhost";
+
+mapboxgl.accessToken = isLocalhost 
+  ? "pk.eyJ1IjoiYm5jNHZrIiwiYSI6ImNtZmtuNzExZTBma2YyaXB5N2V3cnNqZHYifQ.81pi_QteF8dXpaLdAgAcbA"
+  : "pk.eyJ1IjoiYm5jNHZrIiwiYSI6ImNtZmttd2l0NDBlcmgybXB6engyZ3NsOXMifQ.ispasH40DZiTItGPC7EuQQ";
 
 const map = new mapboxgl.Map({
     container: 'map',
