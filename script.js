@@ -5,11 +5,17 @@ mapboxgl.accessToken = isLocalhost
   ? "pk.eyJ1IjoiYm5jNHZrIiwiYSI6ImNtZmtuNzExZTBma2YyaXB5N2V3cnNqZHYifQ.81pi_QteF8dXpaLdAgAcbA"
   : "pk.eyJ1IjoiYm5jNHZrIiwiYSI6ImNtZmttd2l0NDBlcmgybXB6engyZ3NsOXMifQ.ispasH40DZiTItGPC7EuQQ";
 
+
+const isMobile = window.innerWidth <= 500;
+
+const mapCenter = isMobile ? [-50, 30] : [0, 20];
+const zoomLevel = isMobile ? 0.8 : 1.3;
+
 const map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/light-v11',
-    center: [0, 20], // Centered near Africa for global view
-    zoom: 1.3,
+    center: mapCenter, // Centered near Africa for global view
+    zoom: zoomLevel,
     projection: 'mercator'
 });
 
