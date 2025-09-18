@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Tiles and Map Website</title>
+
+    <!-- Mapbox -->
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
-    <link rel="stylesheet" href="style.css">
+
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
     <header class="page-header">
@@ -20,11 +23,21 @@
         <div class="tile tile-2" data-key="MDMA">MDMA</div>
         <div class="tile tile-3" data-key="Psilocybin">Psilocybin</div>
         <div class="tile tile-4" data-key="Lysergic Acid Diethylamide">Lysergic Acid Diethylamide</div>
-        <div class="tile search-tile">
+
+        <!-- Search tile -->
+        <div class="tile search-tile" aria-label="Search substance">
+          <div class="search-icon-wrap" role="button" title="Search">
             <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="10" cy="10" r="7" stroke="#666" stroke-width="2" fill="none"></circle>
-                <line x1="16" y1="16" x2="21" y2="21" stroke="#666" stroke-width="2" stroke-linecap="round"></line>
+              <circle cx="10" cy="10" r="7" stroke="#666" stroke-width="2" fill="none"></circle>
+              <line x1="16" y1="16" x2="21" y2="21" stroke="#666" stroke-width="2" stroke-linecap="round"></line>
             </svg>
+          </div>
+
+          <!-- Hidden by default -->
+          <form id="searchForm" class="search-form hidden" role="search" autocomplete="off">
+            <input id="searchInput" name="substance" class="search-input" placeholder="Enter a substance..." />
+            <button id="searchSubmit" class="search-submit" type="submit">➔</button>
+          </form>
         </div>
     </div>
 
@@ -34,7 +47,7 @@
         </div>
     </div>
 
-    <!-- Legend container -->
+    <!-- Legend -->
     <div id="legend" class="legend"></div>
 
     <script src="script.js"></script>
