@@ -89,7 +89,7 @@ map.on("load", () => {
 
   // Base greyscale layer (always visible underlay)
   map.addLayer({
-    id: "countries-base",
+    id: "countries-first-view",
     type: "fill",
     source: "countries",
     "source-layer": "country_boundaries",
@@ -101,7 +101,7 @@ map.on("load", () => {
 
   // Overlay colored layer (starts transparent, sits above base)
   map.addLayer({
-    id: "countries-overlay",
+    id: "countries-second-view",
     type: "fill",
     source: "countries",
     "source-layer": "country_boundaries",
@@ -109,13 +109,13 @@ map.on("load", () => {
       "fill-color": statusColors.Unknown,
       "fill-opacity": 0 // invisible until updated
     },
-  }, "countries-base"); // ensure overlay is above base
+  }, "countries-first-view"); // ensure overlay is above base
 });
 
-
+let displayedCountriesViewIsFirst = true;
 async function updateMapColors(drugKey) {
   const drugData = tileData[drugKey];
-  if (!map.getLayer("countries-overlay") || !drugData) return;
+  if (!map.getLayer("countries-second-view") || !drugData) return;
 
   const entries = Object.entries(drugData).flatMap(([code, status]) => [
     code,
@@ -129,29 +129,23 @@ async function updateMapColors(drugKey) {
     statusColors.Unknown,
   ];
 
-  // --- Step 1: move current overlay into base ---
-  const currentOverlay = map.getPaintProperty("countries-overlay", "fill-color");
-  if (currentOverlay) {
-    map.setPaintProperty("countries-base", "fill-color", currentOverlay);
-    map.setPaintProperty("countries-base", "fill-opacity", 0.8);
-  }
+  const countryViewToHide = displayedCountriesViewIsFirst ? "countries-first-view" : "countries-second-view";
+  const countryViewToDisplay = displayedCountriesViewIsFirst ? "countries-second-view" : "countries-first-view";
+  displayedCountriesViewIsFirst = !displayedCountriesViewIsFirst;
 
-  // --- Step 2: apply new colors to overlay (hidden initially) ---
-  map.setPaintProperty("countries-overlay", "fill-color", newExpression);
-  map.setPaintProperty("countries-overlay", "fill-opacity", 0);
+  map.setPaintProperty(countryViewToDisplay, "fill-color", newExpression);
 
-  // --- Step 3: cross-fade ---
-  map.setPaintProperty("countries-base", "fill-opacity-transition", {
-    duration: 1000,
+  map.setPaintProperty(countryViewToHide, "fill-opacity-transition", {
+    duration: 2000,
     delay: 0,
   });
-  map.setPaintProperty("countries-base", "fill-opacity", 0);
+  map.setPaintProperty(countryViewToHide, "fill-opacity", 0);
 
-  map.setPaintProperty("countries-overlay", "fill-opacity-transition", {
-    duration: 1000,
+  map.setPaintProperty(countryViewToDisplay, "fill-opacity-transition", {
+    duration: 2000,
     delay: 0,
   });
-  map.setPaintProperty("countries-overlay", "fill-opacity", 0.8);
+  map.setPaintProperty(countryViewToDisplay, "fill-opacity", 0.8);
 }
 
 
