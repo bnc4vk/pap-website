@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Psychedelic Assisted Psychotherapy Accessibility Map</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- Mapbox -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <header class="page-header">
+        <h1>Psychedelic Assisted Psychotherapy Accessibility Map</h1>
+    </header>
+
+    <hr class="header-divider">
+
+    <div class="tiles-container">
+        <!-- Search tile -->
+        <div class="tile search-tile" aria-label="Search substance">
+          <div class="search-icon-wrap" role="button" title="Search">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="10" cy="10" r="7" stroke="#666" stroke-width="2" fill="none"></circle>
+              <line x1="16" y1="16" x2="21" y2="21" stroke="#666" stroke-width="2" stroke-linecap="round"></line>
+            </svg>
+          </div>
+
+          <!-- Hidden by default -->
+          <form id="searchForm" class="search-form hidden">
+            <input 
+              id="searchInput" 
+              class="search-input" 
+              type="text" 
+              placeholder="Search for substance" 
+              autocomplete="off" 
+              autocorrect="off" 
+              autocapitalize="off" 
+              spellcheck="false" 
+            />
+            <button id="searchButton" class="search-submit" type="submit">
+              <span class="spinner hidden"></span>
+            </button>
+          </form>
+        </div>
+    </div>
+
+    <div class="map-wrapper">
+        <div class="map-aspect">
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div id="legend" class="legend"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
