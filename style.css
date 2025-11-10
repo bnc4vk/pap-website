@@ -320,15 +320,12 @@ body.dark-mode .search-tile.expanded .search-input::placeholder {
   }
 }
 
-
 /* -------------------------
    UTILITIES
    ------------------------- */
 .hidden {
   display: none !important;
 }
-
-
 
 /* Input should never have its own box */
 .search-input {

@@ -268,6 +268,3 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 });
-
-// Periodic refresh
-setInterval(loadDataFromAPI, 5 * 60 * 1000);
