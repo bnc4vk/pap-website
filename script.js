@@ -211,7 +211,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
       // 🔹 Call Render backend instead of local Node
-      const RENDER_BACKEND_URL = "https://render-backend-g0u7.onrender.com"; // replace with your Render URL
+      const RENDER_BACKEND_URL = isLocalhost ? "http://localhost:3000" : "https://render-backend-g0u7.onrender.com"; // replace with your Render URL
       const response = await fetch(`${RENDER_BACKEND_URL}/api/predict`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
