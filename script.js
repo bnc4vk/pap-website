@@ -130,6 +130,22 @@ function buildLegend() {
   });
 }
 
+// --- Search tile helpers ---
+function setSearchExpanded(expanded, searchTile, searchForm, iconWrap, searchInput) {
+  searchTile.classList.toggle("expanded", expanded);
+  iconWrap.classList.toggle("hidden", expanded);
+  searchForm.classList.toggle("hidden", !expanded);
+  if (expanded) setTimeout(() => searchInput.focus(), 50);
+}
+
+function setSearchLabel(labelText, iconWrap) {
+  iconWrap.innerHTML = "";
+  const label = document.createElement("span");
+  label.className = "substance-label";
+  label.textContent = labelText;
+  iconWrap.appendChild(label);
+}
+
 // --- Search tile handlers ---
 document.addEventListener("DOMContentLoaded", () => {
   buildLegend();
@@ -139,22 +155,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchForm = document.getElementById("searchForm");
   const searchInput = document.getElementById("searchInput");
 
-  function showSearch() {
-    searchTile.classList.add("expanded");
-    iconWrap.classList.add("hidden");
-    searchForm.classList.remove("hidden");
-    setTimeout(() => searchInput.focus(), 50);
-  }
-  function hideSearch() {
-    searchTile.classList.remove("expanded");
-    searchForm.classList.add("hidden");
-    iconWrap.classList.remove("hidden");
-    searchInput.value = "";
-  }
-
   iconWrap.addEventListener("click", (ev) => {
     ev.stopPropagation();
-    showSearch();
+    setSearchExpanded(true, searchTile, searchForm, iconWrap, searchInput);
   });
 
   searchForm.addEventListener("submit", async (ev) => {
@@ -188,43 +191,37 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-const standardizedKey = data.normalizedSubstance;
-const labelText = data.resolved_name || data.canonical_name || standardizedKey;
+      const standardizedKey = data.normalizedSubstance;
+      const labelText = data.resolved_name || data.canonical_name || standardizedKey;
 
-// Transform server data array into map-friendly object
-tileData[standardizedKey] = Object.fromEntries(
-  (data.data || []).map(({ country_code, access_status }) => [country_code, access_status])
-);
+      // Transform server data array into map-friendly object
+      tileData[standardizedKey] = Object.fromEntries(
+        (data.data || []).map(({ country_code, access_status }) => [country_code, access_status])
+      );
 
-if (tileData[standardizedKey] && Object.keys(tileData[standardizedKey]).length > 0) {
-  updateMapColors(standardizedKey);
+      if (tileData[standardizedKey] && Object.keys(tileData[standardizedKey]).length > 0) {
+        updateMapColors(standardizedKey);
 
-  const label = document.createElement("span");
-  label.className = "substance-label";
-  label.textContent = labelText;
+        setSearchLabel(labelText, iconWrap);
 
-  iconWrap.innerHTML = "";
-  iconWrap.appendChild(label);
-
-  searchTile.classList.add("active");
-  setTimeout(() => searchTile.classList.remove("active"), 1200);
-} else {
-  alert(`"${standardizedKey}" was processed, but no map data is available yet.`);
-}
-
+        searchTile.classList.add("active");
+        setTimeout(() => searchTile.classList.remove("active"), 1200);
+      } else {
+        alert(`"${standardizedKey}" was processed, but no map data is available yet.`);
+      }
     } catch (err) {
       console.error("Search failed:", err);
       alert(`Failed to fetch data for "${query}". Please try again later.`);
     } finally {
       clearTimeout(spinnerTimeout);
       spinner.classList.add("hidden");
-      hideSearch();
+      setSearchExpanded(false, searchTile, searchForm, iconWrap, searchInput);
     }
   });
 
   document.addEventListener("keydown", (ev) => {
     if (ev.key === "Escape" && !searchForm.classList.contains("hidden")) {
-      hideSearch();
+      setSearchExpanded(false, searchTile, searchForm, iconWrap, searchInput);
     }
   });
 });
