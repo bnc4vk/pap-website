@@ -33,26 +33,22 @@ const SUPABASE_URL = "https://upmsuqgcepaoeanexaao.supabase.co";
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVwbXN1cWdjZXBhb2VhbmV4YWFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwMzM2MzYsImV4cCI6MjA3MzYwOTYzNn0.-zWDeKMsisZWkHHy8-DeZ5utUeO4iRO6gZI7kxgPRh4";
 
-// --- Common API helpers ---
-const API_HEADERS = {
-  apikey: SUPABASE_ANON_KEY,
-  Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-  "Content-Type": "application/json",
-};
-
-async function fetchJSON(url, options = {}) {
-  const response = await fetch(url, options);
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  return await response.json();
-}
-
 // --- Load data from Supabase ---
 async function loadDataFromAPI() {
   try {
-    const rawData = await fetchJSON(
+    const response = await fetch(
       `${SUPABASE_URL}/rest/v1/psychedelic_access?select=*`,
-      { headers: API_HEADERS }
+      {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
     );
+    if (!response.ok)
+      throw new Error(`HTTP error! status: ${response.status}`);
+    const rawData = await response.json();
     tileData = transformDataStructure(rawData);
     return tileData;
   } catch (error) {
@@ -99,24 +95,21 @@ map.on("load", () => {
     "source-layer": "country_boundaries",
     paint: {
       "fill-color": statusColors.Unknown,
-      "fill-opacity": 0.8,
+      "fill-opacity": 0.8
     },
   });
 
   // Overlay colored layer (starts transparent, sits above base)
-  map.addLayer(
-    {
-      id: "countries-second-view",
-      type: "fill",
-      source: "countries",
-      "source-layer": "country_boundaries",
-      paint: {
-        "fill-color": statusColors.Unknown,
-        "fill-opacity": 0, // invisible until updated
-      },
+  map.addLayer({
+    id: "countries-second-view",
+    type: "fill",
+    source: "countries",
+    "source-layer": "country_boundaries",
+    paint: {
+      "fill-color": statusColors.Unknown,
+      "fill-opacity": 0 // invisible until updated
     },
-    "countries-first-view"
-  ); // ensure overlay is above base
+  }, "countries-first-view"); // ensure overlay is above base
 });
 
 let displayedCountriesViewIsFirst = true;
@@ -136,12 +129,8 @@ async function updateMapColors(drugKey) {
     statusColors.Unknown,
   ];
 
-  const countryViewToHide = displayedCountriesViewIsFirst
-    ? "countries-first-view"
-    : "countries-second-view";
-  const countryViewToDisplay = displayedCountriesViewIsFirst
-    ? "countries-second-view"
-    : "countries-first-view";
+  const countryViewToHide = displayedCountriesViewIsFirst ? "countries-first-view" : "countries-second-view";
+  const countryViewToDisplay = displayedCountriesViewIsFirst ? "countries-second-view" : "countries-first-view";
   displayedCountriesViewIsFirst = !displayedCountriesViewIsFirst;
 
   map.setPaintProperty(countryViewToDisplay, "fill-color", newExpression);
@@ -158,6 +147,7 @@ async function updateMapColors(drugKey) {
   });
   map.setPaintProperty(countryViewToDisplay, "fill-opacity", 0.8);
 }
+
 
 // --- Legend ---
 function buildLegend() {
@@ -220,9 +210,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }, 1000);
 
     try {
-      const RENDER_BACKEND_URL = isLocalhost
-        ? "http://localhost:3000"
-        : "https://render-backend-g0u7.onrender.com";
+      // 🔹 Call Render backend instead of local Node
+      const RENDER_BACKEND_URL = isLocalhost ? "http://localhost:3000" : "https://render-backend-g0u7.onrender.com"; // replace with your Render URL
       const response = await fetch(`${RENDER_BACKEND_URL}/api/predict`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -232,12 +221,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
 
+      // Handle "no record" / resolution failure
       if (data && data.success === false) {
         searchInput.value = data.message || `No known record of '${query}'`;
         searchInput.focus();
         return;
       }
 
+      // Determine the standardized key to use for map coloring
       const standardizedKey = data.normalizedSubstance;
       const labelText = data.resolved_name || data.canonical_name || standardizedKey;
 
@@ -247,6 +238,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (tileData[standardizedKey]) {
         updateMapColors(standardizedKey);
 
+        // Replace magnifying glass with standardized substance name
         const label = document.createElement("span");
         label.className = "substance-label";
         label.textContent = labelText;
@@ -268,6 +260,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       hideSearch();
     }
   });
+
 
   document.addEventListener("keydown", (ev) => {
     if (ev.key === "Escape" && !searchForm.classList.contains("hidden")) {
