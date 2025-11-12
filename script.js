@@ -27,44 +27,7 @@ const statusColors = {
   "Approved Medical Use": "#27ae60",
 };
 
-let tileData = {};
-
-const SUPABASE_URL = "https://upmsuqgcepaoeanexaao.supabase.co";
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVwbXN1cWdjZXBhb2VhbmV4YWFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwMzM2MzYsImV4cCI6MjA3MzYwOTYzNn0.-zWDeKMsisZWkHHy8-DeZ5utUeO4iRO6gZI7kxgPRh4";
-
-// --- Load data from Supabase ---
-async function loadDataFromAPI() {
-  try {
-    const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/psychedelic_access?select=*`,
-      {
-        headers: {
-          apikey: SUPABASE_ANON_KEY,
-          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    if (!response.ok)
-      throw new Error(`HTTP error! status: ${response.status}`);
-    const rawData = await response.json();
-    tileData = transformDataStructure(rawData);
-    return tileData;
-  } catch (error) {
-    console.error("Failed to load data from Supabase:", error);
-    return {};
-  }
-}
-
-function transformDataStructure(rawData) {
-  const transformed = {};
-  rawData.forEach(({ substance, country_code, access_status }) => {
-    if (!transformed[substance]) transformed[substance] = {};
-    transformed[substance][country_code] = access_status;
-  });
-  return transformed;
-}
+let tileData = {}; // Will now be populated from server response directly
 
 // --- Dark Mode ---
 const hour = new Date().getHours();
@@ -107,13 +70,13 @@ map.on("load", () => {
     "source-layer": "country_boundaries",
     paint: {
       "fill-color": statusColors.Unknown,
-      "fill-opacity": 0 // invisible until updated
+      "fill-opacity": 0
     },
   }, "countries-first-view"); // ensure overlay is above base
 });
 
 let displayedCountriesViewIsFirst = true;
-async function updateMapColors(drugKey) {
+function updateMapColors(drugKey) {
   const drugData = tileData[drugKey];
   if (!map.getLayer("countries-second-view") || !drugData) return;
 
@@ -148,7 +111,6 @@ async function updateMapColors(drugKey) {
   map.setPaintProperty(countryViewToDisplay, "fill-opacity", 0.8);
 }
 
-
 // --- Legend ---
 function buildLegend() {
   const legendContainer = document.getElementById("legend");
@@ -169,9 +131,8 @@ function buildLegend() {
 }
 
 // --- Search tile handlers ---
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
   buildLegend();
-  await loadDataFromAPI();
 
   const searchTile = document.querySelector(".search-tile");
   const iconWrap = searchTile.querySelector(".search-icon-wrap");
@@ -204,14 +165,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     const button = document.getElementById("searchButton");
     const spinner = button.querySelector(".spinner");
 
-    // Show spinner after 1s delay
     const spinnerTimeout = setTimeout(() => {
       spinner.classList.remove("hidden");
     }, 1000);
 
     try {
-      // 🔹 Call Render backend instead of local Node
-      const RENDER_BACKEND_URL = isLocalhost ? "http://localhost:3000" : "https://render-backend-g0u7.onrender.com"; // replace with your Render URL
+      const RENDER_BACKEND_URL = isLocalhost
+        ? "http://localhost:3000"
+        : "https://render-backend-g0u7.onrender.com";
       const response = await fetch(`${RENDER_BACKEND_URL}/api/predict`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -221,36 +182,36 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
 
-      // Handle "no record" / resolution failure
       if (data && data.success === false) {
         searchInput.value = data.message || `No known record of '${query}'`;
         searchInput.focus();
         return;
       }
 
-      // Determine the standardized key to use for map coloring
-      const standardizedKey = data.normalizedSubstance;
-      const labelText = data.resolved_name || data.canonical_name || standardizedKey;
+const standardizedKey = data.normalizedSubstance;
+const labelText = data.resolved_name || data.canonical_name || standardizedKey;
 
-      // Refresh cached data from Supabase
-      await loadDataFromAPI();
+// Transform server data array into map-friendly object
+tileData[standardizedKey] = Object.fromEntries(
+  (data.data || []).map(({ country_code, access_status }) => [country_code, access_status])
+);
 
-      if (tileData[standardizedKey]) {
-        updateMapColors(standardizedKey);
+if (tileData[standardizedKey] && Object.keys(tileData[standardizedKey]).length > 0) {
+  updateMapColors(standardizedKey);
 
-        // Replace magnifying glass with standardized substance name
-        const label = document.createElement("span");
-        label.className = "substance-label";
-        label.textContent = labelText;
+  const label = document.createElement("span");
+  label.className = "substance-label";
+  label.textContent = labelText;
 
-        iconWrap.innerHTML = "";
-        iconWrap.appendChild(label);
+  iconWrap.innerHTML = "";
+  iconWrap.appendChild(label);
 
-        searchTile.classList.add("active");
-        setTimeout(() => searchTile.classList.remove("active"), 1200);
-      } else {
-        alert(`"${standardizedKey}" was processed, but no map data is available yet.`);
-      }
+  searchTile.classList.add("active");
+  setTimeout(() => searchTile.classList.remove("active"), 1200);
+} else {
+  alert(`"${standardizedKey}" was processed, but no map data is available yet.`);
+}
+
     } catch (err) {
       console.error("Search failed:", err);
       alert(`Failed to fetch data for "${query}". Please try again later.`);
@@ -260,7 +221,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       hideSearch();
     }
   });
-
 
   document.addEventListener("keydown", (ev) => {
     if (ev.key === "Escape" && !searchForm.classList.contains("hidden")) {
