@@ -140,7 +140,7 @@ function showCountryPopup(event, drugKey) {
   const { access_status, reference_link } = entry;
 
   if (access_status == 'Unknown') return;
-  
+
   const html = `
     <div class="country-popup">
       <strong>${iso}</strong><br>
@@ -237,7 +237,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const standardizedKey = data.normalizedSubstance;
-      const labelText = data.resolved_name || data.canonical_name || standardizedKey;
+      const labelText = data.resolved_name || standardizedKey;
 
       // Transform server data array into map-friendly object
       tileData[standardizedKey] = Object.fromEntries(

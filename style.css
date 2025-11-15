@@ -156,6 +156,15 @@ body {
 }
 .search-icon { width: 24px; height: 24px; stroke: #666; stroke-width: 2; }
 
+.search-icon-wrap .substance-label {
+  color: #222;
+  font-size: 14px;
+  font-weight: 600;
+}
+body.dark-mode .search-icon-wrap .substance-label {
+  color: #eee;
+}
+
 /* Spinner animation */
 /* Light mode spinner */
 /* Spinner animation */
