@@ -73,6 +73,18 @@ map.on("load", () => {
       "fill-opacity": 0
     },
   }, "countries-first-view"); // ensure overlay is above base
+
+  // Country tap (mobile)
+  map.on("click", "countries-second-view", (e) => {
+    const activeDrug = Object.keys(tileData)[0];
+    if (!activeDrug) return;
+
+    showCountryPopup(e, activeDrug);
+
+    // Auto-close after 3 seconds for mobile
+    setTimeout(() => popup.remove(), 3000);
+  });
+
 });
 
 let displayedCountriesViewIsFirst = true;
@@ -80,10 +92,10 @@ function updateMapColors(drugKey) {
   const drugData = tileData[drugKey];
   if (!map.getLayer("countries-second-view") || !drugData) return;
 
-  const entries = Object.entries(drugData).flatMap(([code, status]) => [
-    code,
-    statusColors[status] || statusColors.Unknown,
-  ]);
+  const entries = Object.entries(drugData).flatMap(([code, obj]) => {
+    const status = obj?.access_status || "Unknown";
+    return [code, statusColors[status] || statusColors.Unknown];
+  });
 
   const newExpression = [
     "match",
@@ -109,6 +121,39 @@ function updateMapColors(drugKey) {
     delay: 0,
   });
   map.setPaintProperty(countryViewToDisplay, "fill-opacity", 0.8);
+}
+
+// --- Country Hover / Click Popups ---
+const popup = new mapboxgl.Popup({
+  closeButton: false,
+  closeOnClick: false,
+  maxWidth: "240px",
+});
+
+function showCountryPopup(event, drugKey) {
+  const iso = event.features?.[0]?.properties?.iso_3166_1?.slice(0, 2);
+  if (!iso || !tileData[drugKey] ) return;
+
+  const entry = tileData[drugKey][iso];
+  if (!entry) return;
+
+  const { access_status, reference_link } = entry;
+
+  if (access_status == 'Unknown') return;
+  
+  const html = `
+    <div class="country-popup">
+      <strong>${iso}</strong><br>
+      Status: ${access_status}<br>
+      ${
+        reference_link
+          ? `<a href="${reference_link}" target="_blank" class="popup-link">Reference</a>`
+          : `<span class="popup-no-link">No reference</span>`
+      }
+    </div>
+  `;
+
+  popup.setLngLat(event.lngLat).setHTML(html).addTo(map);
 }
 
 // --- Legend ---
@@ -196,7 +241,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Transform server data array into map-friendly object
       tileData[standardizedKey] = Object.fromEntries(
-        (data.data || []).map(({ country_code, access_status }) => [country_code, access_status])
+        (data.data || []).map(({ country_code, access_status, reference_link }) => [
+          country_code,
+          { access_status, reference_link }
+        ])
       );
 
       if (tileData[standardizedKey] && Object.keys(tileData[standardizedKey]).length > 0) {

@@ -376,3 +376,32 @@ body.dark-mode .search-tile .search-input::placeholder {
 .search-tile.expanded .search-input {
   line-height: 0.4 !important;
 }
+
+.country-popup {
+  font-size: 13px;
+  line-height: 1.3;
+  color: #222;
+}
+
+body.dark-mode .country-popup {
+  color: #eee;
+}
+
+.popup-link {
+  color: #4A90E2;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+body.dark-mode .popup-link {
+  color: #82b7ff;
+}
+
+.popup-no-link {
+  color: #777;
+  font-style: italic;
+}
+
+body.dark-mode .popup-no-link {
+  color: #aaa;
+}
