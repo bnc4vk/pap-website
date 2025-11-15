@@ -157,9 +157,11 @@ body {
 .search-icon { width: 24px; height: 24px; stroke: #666; stroke-width: 2; }
 
 /* Spinner animation */
+/* Light mode spinner */
+/* Spinner animation */
 .spinner {
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top: 2px solid #fff;
+  border: 2px solid rgba(0, 0, 0, 0.2);   /* visible in light mode */
+  border-top: 2px solid #333;
   border-radius: 50%;
   width: 14px;
   height: 14px;
@@ -167,10 +169,18 @@ body {
   animation: spin 0.8s linear infinite;
   vertical-align: middle;
 }
+
+/* Dark mode override */
+body.dark-mode .spinner {
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid #fff;
+}
+
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
 
 /* -------------------------
    MAP & LEGEND
